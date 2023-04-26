@@ -10,13 +10,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-/* Патимат, здравствуйте! У меня есть два вопроса по ТЗ, напишу их здесь.
-1. Правильно ли я понимаю, что, используя аннотацию @Slf4j, мне не нужно дополнительно прописывать логи?
-И я не поняла, как мне логировать причины того, что валидация не пройдена, если я использую аннотации ограничения?
-2. Если я выполняю задание со звёздочкой, нужно ли мне писать свои JUnit тесты для валидации?
-Насколько мне известно, тестирование аннотаций Spring у нас будет в дальнейшем, и на данном этапе достаточно пройти
-тесты в Postman? И получается нам не нужно писать свое кастомное исключение? */
-
 @RestController
 @Slf4j
 @RequestMapping("/users")
@@ -37,6 +30,7 @@ public class UserController {
 
         user.setId(counter.count());
         users.put(user.getId(), user);
+        log.info("Создан пользователь {}", user);
         return user;
     }
 
@@ -46,6 +40,7 @@ public class UserController {
             throw new RuntimeException();
         }
         users.put(user.getId(), user);
+        log.info("Пользователь {} обновлен", user);
         return user;
     }
 }

@@ -26,6 +26,7 @@ public class FilmController {
     public Film create(@Valid @RequestBody Film film) {
         film.setId(counter.count());
         films.put(film.getId(), film);
+        log.info("Создан фильм {}", film);
         return film;
     }
 
@@ -35,6 +36,7 @@ public class FilmController {
             throw new RuntimeException();
         }
         films.put(film.getId(), film);
+        log.info("Фильм {} обновлен", film);
         return film;
     }
 }
