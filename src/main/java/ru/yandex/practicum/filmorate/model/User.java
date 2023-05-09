@@ -11,8 +11,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Data
-public class User {
-    private int id;
+public class User extends StorageData {
     @Email(message = "Введенный email не соответствует формату email-адреса")
     private String email;
     @NotBlank(message = "Логин не может быть пустым")

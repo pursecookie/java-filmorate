@@ -1,8 +1,10 @@
 package ru.yandex.practicum.filmorate.storage;
 
+import ru.yandex.practicum.filmorate.model.StorageData;
+
 import java.util.Collection;
 
-public interface Storage<T> {
+public interface Storage<T extends StorageData> {
     Collection<T> findAll();
 
     T find(int id);
