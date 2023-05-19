@@ -29,27 +29,27 @@ public class UserService {
         return userStorage.put(user);
     }
 
-    public User find(int id) {
+    public User find(long id) {
         return userStorage.find(id);
     }
 
-    public void addFriend(int id, int friendId) {
+    public void addFriend(long id, long friendId) {
         find(id).addFriend(friendId);
         find(friendId).addFriend(id);
     }
 
-    public void removeFriend(int id, int friendId) {
+    public void removeFriend(long id, long friendId) {
         find(id).removeFriend(friendId);
         find(friendId).removeFriend(id);
     }
 
-    public Collection<User> findAllFriends(int id) {
+    public Collection<User> findAllFriends(long id) {
         return find(id).getFriends().stream()
                 .map(this::find)
                 .collect(Collectors.toList());
     }
 
-    public Collection<User> findCommonFriends(int id, int otherId) {
+    public Collection<User> findCommonFriends(long id, long otherId) {
         return find(id).getFriends().stream()
                 .filter(find(otherId).getFriends()::contains)
                 .map(this::find)

@@ -8,7 +8,7 @@ import java.util.Collection;
 public interface UserStorage extends Storage<User> {
     Collection<User> findAll();
 
-    User find(int id);
+    User find(long id);
 
     User create(User user);
 

@@ -38,18 +38,18 @@ public class FilmController {
     }
 
     @GetMapping("/{id}")
-    public Film find(@PathVariable int id) {
+    public Film find(@PathVariable long id) {
         return filmService.find(id);
     }
 
     @PutMapping("/{id}/like/{userId}")
-    public void addLike(@PathVariable int id, @PathVariable int userId) {
+    public void addLike(@PathVariable long id, @PathVariable long userId) {
         log.info("Добавлен лайк к фильму {} от пользователя {}", filmService.find(id), filmService.find(userId));
         filmService.addLike(id, userId);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
-    public void removeLike(@PathVariable int id, @PathVariable int userId) {
+    public void removeLike(@PathVariable long id, @PathVariable long userId) {
         log.info("У фильма {} удален лайк от пользователя {}", filmService.find(id), filmService.find(userId));
         filmService.removeLike(id, userId);
     }

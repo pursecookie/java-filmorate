@@ -7,6 +7,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.PastOrPresent;
 import javax.validation.constraints.Pattern;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -20,13 +21,14 @@ public class User extends StorageData {
     private String name;
     @PastOrPresent(message = "Дата рождения не может быть в будущем")
     private LocalDate birthday;
-    private Set<Integer> friends = new HashSet<>();
+    private Set<Long> friends = new HashSet<>();
+    private HashMap<Long, Boolean> friendshipStatus = new HashMap<>();
 
-    public void addFriend(int friendId) {
+    public void addFriend(long friendId) {
         friends.add(friendId);
     }
 
-    public void removeFriend(int friendId) {
+    public void removeFriend(long friendId) {
         friends.remove(friendId);
     }
 }

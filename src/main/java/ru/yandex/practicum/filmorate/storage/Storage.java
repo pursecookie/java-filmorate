@@ -7,7 +7,7 @@ import java.util.Collection;
 public interface Storage<T extends StorageData> {
     Collection<T> findAll();
 
-    T find(int id);
+    T find(long id);
 
     T create(T object);
 

@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public abstract class AbstractStorage<T extends StorageData> implements Storage<T> {
-    protected final Map<Integer, T> storage = new HashMap<>();
+    protected final Map<Long, T> storage = new HashMap<>();
     private final Counter counter = new Counter();
 
     @Override
@@ -18,7 +18,7 @@ public abstract class AbstractStorage<T extends StorageData> implements Storage<
     }
 
     @Override
-    public T find(int id) {
+    public T find(long id) {
         if (!storage.containsKey(id)) {
             throw new NotFoundException("Указанный id " + id + " не найден");
         }
