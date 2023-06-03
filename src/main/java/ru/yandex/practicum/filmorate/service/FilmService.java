@@ -31,15 +31,15 @@ public class FilmService {
         return filmStorage.put(film);
     }
 
-    public Film find(int id) {
+    public Film find(long id) {
         return filmStorage.find(id);
     }
 
-    public void addLike(int id, int userId) {
+    public void addLike(long id, long userId) {
         find(id).addLike(userId);
     }
 
-    public void removeLike(int id, int userId) {
+    public void removeLike(long id, long userId) {
         if (!find(id).getLikes().contains(userId)) {
             throw new NotFoundException("Пользователь с id " + userId + " не найден");
         }

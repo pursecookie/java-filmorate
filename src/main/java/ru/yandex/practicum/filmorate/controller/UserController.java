@@ -38,29 +38,29 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public User find(@PathVariable int id) {
+    public User find(@PathVariable long id) {
         return userService.find(id);
     }
 
     @PutMapping("/{id}/friends/{friendId}")
-    public void addFriend(@PathVariable int id, @PathVariable int friendId) {
+    public void addFriend(@PathVariable long id, @PathVariable long friendId) {
         log.info("{} добавлен в друзья пользователя {}", userService.find(friendId), userService.find(id));
         userService.addFriend(id, friendId);
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
-    public void removeFriend(@PathVariable int id, @PathVariable int friendId) {
+    public void removeFriend(@PathVariable long id, @PathVariable long friendId) {
         log.info("{} удален из друзей пользователя {}", userService.find(friendId), userService.find(id));
         userService.removeFriend(id, friendId);
     }
 
     @GetMapping("/{id}/friends")
-    public Collection<User> findAllFriends(@PathVariable int id) {
+    public Collection<User> findAllFriends(@PathVariable long id) {
         return userService.findAllFriends(id);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
-    public Collection<User> findCommonFriends(@PathVariable int id, @PathVariable int otherId) {
+    public Collection<User> findCommonFriends(@PathVariable long id, @PathVariable long otherId) {
         return userService.findCommonFriends(id, otherId);
     }
 

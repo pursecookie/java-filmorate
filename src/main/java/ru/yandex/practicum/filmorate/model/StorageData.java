@@ -4,5 +4,5 @@ import lombok.Data;
 
 @Data
 public abstract class StorageData {
-    private int id;
+    private long id;
 }

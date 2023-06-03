@@ -9,7 +9,7 @@ public interface FilmStorage extends Storage<Film> {
 
     Collection<Film> findAll();
 
-    Film find(int id);
+    Film find(long id);
 
     Film create(Film film);
 
