@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Genre extends StorageData {
-    private long id;
+public class Mpa extends StorageData {
     private String name;
 }

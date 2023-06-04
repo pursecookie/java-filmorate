@@ -20,15 +20,6 @@ public class Film extends StorageData {
     private LocalDate releaseDate;
     @Positive(message = "Продолжительность фильма должна быть положительной")
     private long duration;
-    private Set<Long> likes = new HashSet<>();
+    private Mpa mpa;
     private Set<Genre> genres = new HashSet<>();
-    private Rating rating;
-
-    public void addLike(long userId) {
-        likes.add(userId);
-    }
-
-    public void removeLike(long userId) {
-        likes.remove(userId);
-    }
 }
