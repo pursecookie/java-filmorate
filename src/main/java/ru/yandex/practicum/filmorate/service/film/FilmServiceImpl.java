@@ -2,9 +2,9 @@ package ru.yandex.practicum.filmorate.service.film;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dao.DataStorageDao;
+import ru.yandex.practicum.filmorate.dao.film.FilmStorageDao;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.dao.DataStorageDaoImpl;
-import ru.yandex.practicum.filmorate.dao.film.FilmStorageDaoImpl;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.DataServiceImpl;
 
@@ -12,30 +12,30 @@ import java.util.Collection;
 
 @Service
 public class FilmServiceImpl extends DataServiceImpl<Film> implements FilmService {
-    private final FilmStorageDaoImpl filmStorageDaoImpl;
+    private final FilmStorageDao filmStorageDao;
 
     @Autowired
-    public FilmServiceImpl(DataStorageDaoImpl<Film> dataStorageDaoImpl, FilmStorageDaoImpl filmStorageDaoImpl) {
-        super(dataStorageDaoImpl);
-        this.filmStorageDaoImpl = filmStorageDaoImpl;
+    public FilmServiceImpl(DataStorageDao<Film> dataStorageDao, FilmStorageDao filmStorageDao) {
+        super(dataStorageDao);
+        this.filmStorageDao = filmStorageDao;
     }
 
     @Override
     public Film create(Film film) {
-        Film result = dataStorageDaoImpl.create(film);
+        Film result = dataStorageDao.create(film);
 
-        filmStorageDaoImpl.addGenres(result.getId(), film.getGenres());
-        result.setGenres(filmStorageDaoImpl.getGenres(result.getId()));
+        filmStorageDao.addGenres(result.getId(), film.getGenres());
+        result.setGenres(filmStorageDao.getGenres(result.getId()));
 
         return result;
     }
 
     @Override
     public Film read(long filmId) {
-        if (dataStorageDaoImpl.isExists(filmId)) {
-            Film result = dataStorageDaoImpl.read(filmId);
+        if (dataStorageDao.isExists(filmId)) {
+            Film result = dataStorageDao.read(filmId);
 
-            result.setGenres(filmStorageDaoImpl.getGenres(result.getId()));
+            result.setGenres(filmStorageDao.getGenres(result.getId()));
 
             return result;
         } else {
@@ -45,10 +45,10 @@ public class FilmServiceImpl extends DataServiceImpl<Film> implements FilmServic
 
     @Override
     public Collection<Film> readAll() {
-        Collection<Film> films = dataStorageDaoImpl.readAll();
+        Collection<Film> films = dataStorageDao.readAll();
 
         for (Film film : films) {
-            film.setGenres(filmStorageDaoImpl.getGenres(film.getId()));
+            film.setGenres(filmStorageDao.getGenres(film.getId()));
         }
 
         return films;
@@ -56,11 +56,11 @@ public class FilmServiceImpl extends DataServiceImpl<Film> implements FilmServic
 
     @Override
     public Film update(Film film) {
-        if (dataStorageDaoImpl.isExists(film.getId())) {
-            Film result = dataStorageDaoImpl.update(film);
+        if (dataStorageDao.isExists(film.getId())) {
+            Film result = dataStorageDao.update(film);
 
-            filmStorageDaoImpl.updateGenres(result.getId(), film.getGenres());
-            result.setGenres(filmStorageDaoImpl.getGenres(result.getId()));
+            filmStorageDao.updateGenres(result.getId(), film.getGenres());
+            result.setGenres(filmStorageDao.getGenres(result.getId()));
 
             return result;
         } else {
