@@ -9,6 +9,8 @@ import java.util.Set;
 
 public interface FilmStorageDao extends DataStorageDao<Film> {
     void addGenres(long filmId, Collection<Genre> genres);
+
     Set<Genre> getGenres(long filmId);
+
     void updateGenres(long filmId, Set<Genre> genres);
 }
