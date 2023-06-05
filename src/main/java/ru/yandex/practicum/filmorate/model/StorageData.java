@@ -6,5 +6,5 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public abstract class StorageData {
-    private long id;
+    protected long id;
 }

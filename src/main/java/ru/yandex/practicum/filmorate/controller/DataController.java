@@ -1,17 +1,43 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.StorageData;
+import ru.yandex.practicum.filmorate.service.DataService;
 
+import javax.validation.Valid;
 import java.util.Collection;
 
-public interface DataController<T extends StorageData> {
-    T create(T data);
+public abstract class DataController<T extends StorageData> {
+    protected final DataService<T> dataService;
 
-    T read(long id);
+    @Autowired
+    public DataController(DataService<T> dataService) {
+        this.dataService = dataService;
+    }
 
-    Collection<T> readAll();
+    @PostMapping
+    public T create(@Valid @RequestBody T data) {
+        return dataService.create(data);
+    }
 
-    T update(T data);
+    @GetMapping("/{id}")
+    public T read(@PathVariable long id) {
+        return dataService.read(id);
+    }
 
-    void delete(long id);
+    @GetMapping
+    public Collection<T> readAll() {
+        return dataService.readAll();
+    }
+
+    @PutMapping
+    public T update(@RequestBody T data) {
+        return dataService.update(data);
+    }
+
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable long id) {
+        dataService.delete(id);
+    }
 }

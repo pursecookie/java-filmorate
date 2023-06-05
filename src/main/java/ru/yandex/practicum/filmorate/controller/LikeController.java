@@ -1,34 +1,34 @@
-package ru.yandex.practicum.filmorate.controller.like;
+package ru.yandex.practicum.filmorate.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.service.like.LikeServiceImpl;
+import ru.yandex.practicum.filmorate.service.like.LikeService;
 
 import java.util.Collection;
 
 @RestController
 @RequestMapping("/films")
-public class LikeControllerImpl implements LikeController {
-    LikeServiceImpl likeServiceImpl;
+public class LikeController {
+    LikeService likeService;
 
     @Autowired
-    public LikeControllerImpl(LikeServiceImpl likeServiceImpl) {
-        this.likeServiceImpl = likeServiceImpl;
+    public LikeController(LikeService likeService) {
+        this.likeService = likeService;
     }
 
     @PutMapping("/{filmId}/like/{userId}")
     public void create(@PathVariable long filmId, @PathVariable long userId) {
-        likeServiceImpl.create(filmId, userId);
+        likeService.create(filmId, userId);
     }
 
     @GetMapping("/popular")
     public Collection<Film> readPopular(@RequestParam(required = false) String count) {
-        return likeServiceImpl.readPopular(count);
+        return likeService.readPopular(count);
     }
 
     @DeleteMapping("/{filmId}/like/{userId}")
     public void delete(@PathVariable long filmId, @PathVariable long userId) {
-        likeServiceImpl.delete(filmId, userId);
+        likeService.delete(filmId, userId);
     }
 }
