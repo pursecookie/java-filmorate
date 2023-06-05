@@ -25,7 +25,7 @@
 ## Схема базы данных
 
 
-![](https://github.com/pursecookie/java-filmorate/blob/add-friends-likes/src/main/resources/schema.png)
+![](https://github.com/pursecookie/java-filmorate/blob/add-database/src/main/resources/schema.png) 
 
 
 
