@@ -25,7 +25,7 @@
 ## Схема базы данных
 
 
-![](https://github.com/pursecookie/java-filmorate/blob/add-friends-likes/src/main/resources/schema.png)
+![](https://github.com/pursecookie/java-filmorate/blob/add-database/src/main/resources/schema.png) 
 
 
 
@@ -35,91 +35,128 @@
 <details>
   <summary><b>Фильмы</b></summary>
 
-📄Вывести список всех фильмов
-
+🆕Создать фильм
   ```SQL
-  SELECT * 
-  FROM movie;
+  INSERT INTO films (name, description, release_date, duration, rating_id)
+  VALUES (?,?,?,?,?)
   ```
 
-🆕Создать фильм
+ℹ️Вывести информацию о фильме по id
+  ```SQL
+  SELECT *
+  FROM films
+  WHERE film_id = ?
+  ```
 
-_в разработке_
+📄Вывести список всех фильмов
+  ```SQL
+  SELECT * 
+  FROM films
+  ```
 
 🔄Обновить информацию о фильме
-
-_в разработке_
-
-ℹ️Вывести информацию о фильме по id
-
-_в разработке_
-
-💓Поставить фильму лайк
-
-_в разработке_
-
-💔Удалить лайк у фильма
-
-_в разработке_
-
-🔝Вывести ТОП-10 популярных фильмов
-
   ```SQL
-  SELECT m.name AS movie_name 
-  FROM (
-    SELECT l.film_id, 
-    COUNT(l.user_id) AS likes 
-    FROM likes AS l 
-    GROUP BY l.film_id 
-    ORDER BY l.likes DESC 
-    LIMIT 10
-  ) AS p 
-  INNER JOIN movie AS m ON p.film_id = m.film_id;
+  UPDATE films SET name = ?, description = ?, release_date = ?, duration = ?, rating_id = ?
+  WHERE film_id = ?
+  ```
+
+❌Удалить фильм по id
+  ```SQL
+  DELETE FROM films
+  WHERE film_id = ?
   ```
 
   </details>  
 
+<details>
+  <summary><b>Лайки</b></summary>
 
+💓Поставить фильму лайк
+  ```SQL
+  INSERT INTO likes (film_id, user_id)
+  VALUES (?,?)
+  ```
+
+🔝Вывести ТОП-10 популярных фильмов
+  ```SQL
+  SELECT *
+  FROM (
+  SELECT film_id, COUNT (user_id) AS like_count
+  FROM likes
+  GROUP BY film_id
+  ORDER BY like_count DESC
+  ) AS l
+  LEFT OUTER JOIN films AS f ON l.film_id = f.film_id
+  LIMIT 10
+  ```
+
+💔Удалить лайк у фильма
+  ```SQL
+  DELETE FROM likes
+  WHERE film_id = ?
+  AND user_id = ?
+  ```
+
+  </details>
 
 <details>
   <summary><b>Пользователи</b></summary>
 
-📄<i>Вывести список всех пользователей</i>
-
+🆕Создать пользователя
   ```SQL
-  SELECT * 
-  FROM user;
+  INSERT INTO users (login, name, email, birthday)
+  VALUES (?,?,?,?)
   ```
 
-🆕Создать пользователя
+ℹ️Вывести информацию о пользователе по id
+  ```SQL
+  SELECT * FROM users
+  WHERE user_id = ?
+  ```
 
-_в разработке_
+📄<i>Вывести список всех пользователей</i>
+  ```SQL
+  SELECT * 
+  FROM users
+  ```
 
 🔄Обновить информацию о пользователе
+  ```SQL
+  UPDATE users SET login = ?, name = ?, email = ?, birthday = ?
+  WHERE user_id = ?
+  ```
 
-_в разработке_
-
-ℹ️Вывести информацию о пользователе по id
-
-_в разработке_
-
-✅Добавить пользователя в друзья
-
-_в разработке_
-
-❌Удалить пользователя из друзей
-
-_в разработке_
-
-👫Вывести список всех друзей
-
-_в разработке_
-
-🤘Вывести список общих друзей
-
-_в разработке_
+❌Удалить пользователя по id
+  ```SQL
+  DELETE FROM users
+  WHERE user_id = ?
+  ```
 
   </details>
 
+<details>
+  <summary><b>Дружба</b></summary>
 
-**[⬆️Вернуться в начало](#java-filmorate)**
+✅Добавить пользователя в друзья
+  ```SQL
+  INSERT INTO friendships (user_from, user_to, status)
+  VALUES (?,?,?)
+  ```
+
+👫Вывести список всех друзей пользователя
+  ```SQL
+  SELECT f.user_to AS user_id, u.login, u.name, u.email, u.birthday
+  FROM friendships AS f
+  LEFT OUTER JOIN users AS u ON f.user_to = u.user_id
+  WHERE f.user_from = ?
+  ORDER BY user_id
+  ```
+
+❌Удалить пользователя из друзей
+  ```SQL
+  DELETE FROM friendships
+  WHERE user_from = ?
+  AND user_to = ?
+  ```
+
+  </details>
