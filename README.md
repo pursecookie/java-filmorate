@@ -1,6 +1,6 @@
-
-<h1 align="center">Filmorate</h1>
-
+<h2 align="center">
+  <a href="https://git.io/typing-svg"><img src="https://readme-typing-svg.demolab.com?font=Pixelify+Sans&size=40&pause=1000&color=CF1616&center=true&vCenter=true&random=false&width=435&lines=FILMORATE" alt="Typing SVG" /></a>
+</h2>
 
 <p align="center"><i>Filmorate поможет вам с выбором фильма для вечернего просмотра в зависимости от оценок пользователей по всему миру</i></p>
 
