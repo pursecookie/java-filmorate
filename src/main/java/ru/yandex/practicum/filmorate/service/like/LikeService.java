@@ -38,7 +38,7 @@ public class LikeService {
         if (likeStorageDao.isExists(userId)) {
             likeStorageDao.delete(filmId, userId);
         } else {
-            throw new NotFoundException("Данные с id " + userId + " не найдены");
+            throw new NotFoundException("Данные с id # " + userId + " не найдены");
         }
     }
 }
