@@ -5,13 +5,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dao.DataStorageDaoImpl;
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
-import ru.yandex.practicum.filmorate.mapper.GenreMapper;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
-
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
 
 @Repository
 public class FilmStorageDaoImpl extends DataStorageDaoImpl<Film> implements FilmStorageDao {
