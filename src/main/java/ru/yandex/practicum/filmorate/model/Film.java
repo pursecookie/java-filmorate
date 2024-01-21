@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.model;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import ru.yandex.practicum.filmorate.annotation.MinReleaseDate;
 
 import javax.validation.constraints.NotBlank;
@@ -10,6 +11,7 @@ import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 public class Film extends StorageData {
     @NotBlank(message = "Название фильма не должно быть пустым")

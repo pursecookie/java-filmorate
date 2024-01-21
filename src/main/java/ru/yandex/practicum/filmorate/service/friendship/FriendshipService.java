@@ -27,7 +27,11 @@ public class FriendshipService {
     }
 
     public Collection<User> readAll(long userId) {
-        return friendshipStorageDao.readAll(userId);
+        if (friendshipStorageDao.isExists(userId)) {
+            return friendshipStorageDao.readAll(userId);
+        } else {
+            throw new NotFoundException("Данные с id " + userId + " не найдены");
+        }
     }
 
     public Collection<User> readCommon(long userId, long friendId) {
