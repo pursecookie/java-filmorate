@@ -1,12 +1,14 @@
 package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.DataStorageDao;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.StorageData;
 
 import java.util.Collection;
 
+@Service
 public abstract class DataServiceImpl<T extends StorageData> implements DataService<T> {
     protected final DataStorageDao<T> dataStorageDao;
 
@@ -45,6 +47,10 @@ public abstract class DataServiceImpl<T extends StorageData> implements DataServ
 
     @Override
     public void delete(long id) {
-        dataStorageDao.delete(id);
+        if (dataStorageDao.isExists(id)) {
+            dataStorageDao.delete(id);
+        } else {
+            throw new NotFoundException("Данные с id " + id + " не найдены");
+        }
     }
 }

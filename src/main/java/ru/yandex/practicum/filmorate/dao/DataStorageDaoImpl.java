@@ -3,10 +3,12 @@ package ru.yandex.practicum.filmorate.dao;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.StorageData;
 
 import java.util.Collection;
 
+@Repository
 public abstract class DataStorageDaoImpl<T extends StorageData> implements DataStorageDao<T> {
     protected final JdbcTemplate jdbcTemplate;
 

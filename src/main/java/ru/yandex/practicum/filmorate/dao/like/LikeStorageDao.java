@@ -35,7 +35,8 @@ public class LikeStorageDao {
     private String getSelectAllQuery() {
         return "SELECT f.film_id, f.name, f.description, f.release_date, f.duration, f.rating_id, r.mpa_name " +
                 "FROM films AS f " +
-                "LEFT OUTER JOIN ratings AS r ON f.rating_id = r.rating_id";
+                "LEFT OUTER JOIN ratings AS r ON f.rating_id = r.rating_id " +
+                "LIMIT ?";
     }
 
     private String getDeleteQuery() {
@@ -52,7 +53,7 @@ public class LikeStorageDao {
         }
 
         Collection<Film> popularFilms = jdbcTemplate.query(getSelectPopularQuery(), new FilmMapper(), count);
-        Collection<Film> allFilms = jdbcTemplate.query(getSelectAllQuery(), new FilmMapper());
+        Collection<Film> allFilms = jdbcTemplate.query(getSelectAllQuery(), new FilmMapper(), count);
 
         if (popularFilms.isEmpty()) {
             return allFilms;

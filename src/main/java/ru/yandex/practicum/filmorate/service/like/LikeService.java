@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service.like;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dao.genre.GenreStorageDao;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.dao.like.LikeStorageDao;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -10,12 +11,13 @@ import java.util.Collection;
 
 @Service
 public class LikeService {
-
-    LikeStorageDao likeStorageDao;
+    private final LikeStorageDao likeStorageDao;
+    private final GenreStorageDao genreStorageDao;
 
     @Autowired
-    public LikeService(LikeStorageDao likeStorageDao) {
+    public LikeService(LikeStorageDao likeStorageDao, GenreStorageDao genreStorageDao) {
         this.likeStorageDao = likeStorageDao;
+        this.genreStorageDao = genreStorageDao;
     }
 
     public void create(long filmId, long userId) {
@@ -23,7 +25,13 @@ public class LikeService {
     }
 
     public Collection<Film> readPopular(String count) {
-        return likeStorageDao.readPopular(count);
+        Collection<Film> popularFilms = likeStorageDao.readPopular(count);
+
+        for (Film film : popularFilms) {
+            film.setGenres(genreStorageDao.getGenresForFilms(film.getId()));
+        }
+
+        return popularFilms;
     }
 
     public void delete(long filmId, long userId) {

@@ -54,7 +54,10 @@ public class FilmStorageDaoImpl extends DataStorageDaoImpl<Film> implements Film
         jdbcTemplate.update(getInsertQuery(), film.getName(), film.getDescription(), film.getReleaseDate(),
                 film.getDuration(), film.getMpa().getId());
 
-        return jdbcTemplate.queryForObject(getSelectAllQuery() + " WHERE f.name = ?", getMapper(), film.getName());
+        return jdbcTemplate.queryForObject("SELECT f.film_id, f.name, f.description, f.release_date, f.duration, f.rating_id, r.mpa_name " +
+                "FROM films AS f " +
+                "LEFT OUTER JOIN ratings AS r ON f.rating_id = r.rating_id " +
+                "ORDER BY film_id DESC LIMIT 1", getMapper());
     }
 
     @Override
@@ -64,27 +67,4 @@ public class FilmStorageDaoImpl extends DataStorageDaoImpl<Film> implements Film
 
         return read(film.getId());
     }
-
-    @Override
-    public void addGenres(long filmId, Collection<Genre> genres) {
-        for (Genre genre : genres) {
-            jdbcTemplate.update("INSERT INTO films_genres (film_id, genre_id) VALUES (?,?)", filmId, genre.getId());
-        }
-    }
-
-    @Override
-    public Set<Genre> getGenres(long filmId) {
-        return new HashSet<>(jdbcTemplate.query("SELECT fg.genre_id, g.genre_name " +
-                "FROM films_genres AS fg " +
-                "LEFT OUTER JOIN genres AS g ON fg.genre_id = g.genre_id " +
-                "WHERE fg.film_id = ?" +
-                "ORDER BY fg.genre_id", new GenreMapper(), filmId));
-    }
-
-    @Override
-    public void updateGenres(long filmId, Set<Genre> genres) {
-        jdbcTemplate.update("DELETE FROM films_genres WHERE film_id = ?", filmId);
-        addGenres(filmId, genres);
-    }
-
 }
