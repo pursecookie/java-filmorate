@@ -16,7 +16,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target({FIELD})
 @Retention(RUNTIME)
 public @interface MinReleaseDate {
-    String message() default "Дата релиза не может быть раньше 28.12.1895";
+    String message() default "Дата релиза не может быть раньше 28.12.1895 г.";
 
     Class<?>[] groups() default {};
 
