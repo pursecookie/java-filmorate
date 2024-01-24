@@ -11,6 +11,7 @@ public class FilmMapper implements RowMapper<Film> {
     public Film mapRow(ResultSet rs, int rowNum) throws SQLException {
         Film film = new Film();
         MpaMapper mpaMapper = new MpaMapper();
+        DirectorMapper directorMapper = new DirectorMapper();
 
         film.setId(rs.getLong("film_id"));
         film.setName(rs.getString("name"));

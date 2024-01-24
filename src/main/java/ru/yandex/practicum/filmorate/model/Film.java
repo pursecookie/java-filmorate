@@ -24,4 +24,5 @@ public class Film extends StorageData {
     private long duration;
     private Mpa mpa;
     private Set<Genre> genres = new HashSet<>();
+    private Set<Director> directors = new HashSet<>();
 }
