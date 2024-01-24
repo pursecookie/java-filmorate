@@ -27,7 +27,8 @@ public abstract class DataController<T extends StorageData> {
     }
 
     @GetMapping
-    public Collection<T> readAll() {
+    public Collection<T> readAll(@RequestParam(required = false) Long filmId,
+                                 @RequestParam(defaultValue = "10") Long count) {
         return dataService.readAll();
     }
 

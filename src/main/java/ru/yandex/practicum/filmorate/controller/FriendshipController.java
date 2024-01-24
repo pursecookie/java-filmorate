@@ -10,7 +10,7 @@ import java.util.Collection;
 @RestController
 @RequestMapping("/users")
 public class FriendshipController {
-    FriendshipService friendshipService;
+    private final FriendshipService friendshipService;
 
     @Autowired
     public FriendshipController(FriendshipService friendshipService) {

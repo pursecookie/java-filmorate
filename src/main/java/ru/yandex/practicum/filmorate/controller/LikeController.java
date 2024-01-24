@@ -10,7 +10,7 @@ import java.util.Collection;
 @RestController
 @RequestMapping("/films")
 public class LikeController {
-    LikeService likeService;
+    private final LikeService likeService;
 
     @Autowired
     public LikeController(LikeService likeService) {

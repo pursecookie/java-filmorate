@@ -18,13 +18,13 @@ public class LikeStorageDao {
     }
 
     private String getInsertQuery() {
-        return "INSERT INTO likes (film_id, user_id) VALUES (?,?)";
+        return "INSERT INTO films_likes (film_id, user_id) VALUES (?,?)";
     }
 
     private String getSelectPopularQuery() {
         return "SELECT l.film_id, f.name, f.description, f.release_date, f.duration, f.rating_id, r.mpa_name " +
                 "FROM (SELECT film_id, COUNT (user_id) AS like_count " +
-                "FROM likes " +
+                "FROM films_likes " +
                 "GROUP BY film_id " +
                 "ORDER BY like_count DESC) AS l " +
                 "LEFT OUTER JOIN films AS f ON l.film_id = f.film_id " +
@@ -40,7 +40,7 @@ public class LikeStorageDao {
     }
 
     private String getDeleteQuery() {
-        return "DELETE FROM likes WHERE film_id = ? AND user_id = ?";
+        return "DELETE FROM films_likes WHERE film_id = ? AND user_id = ?";
     }
 
     public void create(long filmId, long userId) {
