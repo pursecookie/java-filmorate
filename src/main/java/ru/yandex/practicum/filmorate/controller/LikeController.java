@@ -10,6 +10,7 @@ import java.util.Collection;
 @RestController
 @RequestMapping("/films")
 public class LikeController {
+    //по аналогии с лайками к отзывам, отнести этот контроллер к фильмам - одинаковый path (films)
     private final LikeService likeService;
 
     @Autowired
