@@ -10,10 +10,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Genre extends StorageData {
+    private String name;
+
     public Genre(long id, String name) {
         super(id);
         this.name = name;
     }
-
-    private String name;
 }
