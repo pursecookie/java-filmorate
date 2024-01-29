@@ -20,9 +20,24 @@ public class FilmController extends DataController<Film> {
         this.filmService = filmService;
     }
 
-    @GetMapping("director/{directorId}")
+    @GetMapping("/director/{directorId}")
     public Collection<Film> readAllSortedFilmsByDirector(@PathVariable long directorId,
                                                          @RequestParam String sortBy) {
         return filmService.readAllSortedFilmsByDirector(directorId, sortBy);
+    }
+
+    @PutMapping("/{filmId}/like/{userId}")
+    public void createLike(@PathVariable long filmId, @PathVariable long userId) {
+        filmService.createLike(filmId, userId);
+    }
+
+    @GetMapping("/popular")
+    public Collection<Film> readPopularFilms(@RequestParam(required = false) String count) {
+        return filmService.readPopularFilms(count);
+    }
+
+    @DeleteMapping("/{filmId}/like/{userId}")
+    public void deleteLike(@PathVariable long filmId, @PathVariable long userId) {
+        filmService.deleteLike(filmId, userId);
     }
 }
