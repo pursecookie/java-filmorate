@@ -11,7 +11,7 @@ import java.util.Collection;
 
 @Repository
 public class LikeStorageDao {
-    protected final JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
 
     public LikeStorageDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
