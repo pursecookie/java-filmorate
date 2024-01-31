@@ -113,6 +113,30 @@ public class FilmStorageDaoImpl extends DataStorageDaoImpl<Film> implements Film
         return jdbcTemplate.query(sqlSearchFilms, getMapper());
     }
 
+    @Override
+    public Collection<Film> readCommonFilms(long userId, long friendId) {
+        String sqlReadCommonFilms = "SELECT f.film_id, f.name, f.description, f.release_date, f.duration, " +
+                "f.rating_id, r.mpa_name " +
+                "FROM films AS f " +
+                "LEFT OUTER JOIN (SELECT film_id, COUNT(user_id) AS like_count " +
+                "FROM films_likes " +
+                "GROUP BY film_id) AS l ON f.film_id = l.film_id " +
+                "LEFT OUTER JOIN ratings AS r ON f.rating_id = r.rating_id " +
+                "WHERE f.film_id IN (SELECT fl.film_id " +
+                "FROM films_likes AS fl " +
+                "WHERE fl.user_id = ? " +
+                "OR fl.user_id = ? " +
+                "AND fl.film_id NOT IN (SELECT fl.film_id " +
+                "FROM films_likes AS fl " +
+                "WHERE fl.user_id = ?) " +
+                "AND fl.film_id NOT IN (SELECT fl.film_id " +
+                "FROM films_likes AS fl " +
+                "WHERE fl.user_id = ?)) " +
+                "ORDER BY like_count DESC";
+
+        return jdbcTemplate.query(sqlReadCommonFilms, getMapper(), userId, friendId, userId, friendId);
+    }
+
     private static String getSqlCondition(String query, String by) {
         String sqlCondition = null;
 

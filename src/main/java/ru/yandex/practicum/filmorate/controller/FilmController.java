@@ -45,4 +45,10 @@ public class FilmController extends DataController<Film> {
     public Collection<Film> searchFilms(@RequestParam String query, @RequestParam String by) {
         return filmService.searchFilms(query, by);
     }
+
+    @GetMapping("/common")
+    public Collection<Film> readCommonFilms(@RequestParam long userId, @RequestParam long friendId) {
+        return filmService.readCommonFilms(userId, friendId);
+    }
+
 }
