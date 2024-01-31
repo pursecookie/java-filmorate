@@ -116,8 +116,24 @@ public class FilmServiceImpl extends DataServiceImpl<Film> implements FilmServic
     }
 
     @Override
-    public Collection<Film> readPopularFilms(String count) {
-        Collection<Film> popularFilms = likeStorageDao.readPopular(count);
+    public Collection<Film> readPopularFilms(Long count, Long genreId, Integer year) {
+        Collection<Film> popularFilms = new ArrayList<>();
+
+        if (genreId == null && year == null) {
+            popularFilms = likeStorageDao.readPopular(count);
+        }
+
+        if (genreId != null) {
+            popularFilms = likeStorageDao.readPopularByGenre(count, genreId);
+        }
+
+        if (year != null) {
+            popularFilms = likeStorageDao.readPopularByYear(count, year);
+        }
+
+        if (genreId != null && year != null) {
+            popularFilms = likeStorageDao.readPopularByGenreAndYear(count, genreId, year);
+        }
 
         setGenresAndDirectorsForFilms(popularFilms);
 

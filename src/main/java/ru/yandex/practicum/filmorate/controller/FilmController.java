@@ -32,8 +32,10 @@ public class FilmController extends DataController<Film> {
     }
 
     @GetMapping("/popular")
-    public Collection<Film> readPopularFilms(@RequestParam(required = false) String count) {
-        return filmService.readPopularFilms(count);
+    public Collection<Film> readPopularFilms(@RequestParam(defaultValue = "10") Long count,
+                                             @RequestParam(required = false) Long genreId,
+                                             @RequestParam(required = false) Integer year) {
+        return filmService.readPopularFilms(count, genreId, year);
     }
 
     @DeleteMapping("/{filmId}/like/{userId}")

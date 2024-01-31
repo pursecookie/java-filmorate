@@ -10,7 +10,7 @@ public interface FilmService extends DataService<Film> {
 
     void createLike(long filmId, long userId);
 
-    Collection<Film> readPopularFilms(String count);
+    Collection<Film> readPopularFilms(Long count, Long genreId, Integer year);
 
     void deleteLike(long filmId, long userId);
 
