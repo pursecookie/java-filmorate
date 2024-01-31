@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.dao.feed.FeedStorageDao;
 import ru.yandex.practicum.filmorate.dao.film.FilmStorageDao;
 import ru.yandex.practicum.filmorate.dao.genre.GenreStorageDao;
 import ru.yandex.practicum.filmorate.dao.like.LikeStorageDao;
+import ru.yandex.practicum.filmorate.dao.user.UserStorageDao;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.DataServiceImpl;
@@ -22,6 +23,7 @@ public class FilmServiceImpl extends DataServiceImpl<Film> implements FilmServic
     private final FilmStorageDao filmStorageDao;
     private final LikeStorageDao likeStorageDao;
     private final FeedStorageDao feedStorageDao;
+    private final UserStorageDao userStorageDao;
 
     @Autowired
     public FilmServiceImpl(DataStorageDao<Film> dataStorageDao,
@@ -29,13 +31,14 @@ public class FilmServiceImpl extends DataServiceImpl<Film> implements FilmServic
                            DirectorStorageDao directorStorageDao,
                            FilmStorageDao filmStorageDao,
                            LikeStorageDao likeStorageDao,
-                           FeedStorageDao feedStorageDao) {
+                           FeedStorageDao feedStorageDao, UserStorageDao userStorageDao) {
         super(dataStorageDao);
         this.genreStorageDao = genreStorageDao;
         this.directorStorageDao = directorStorageDao;
         this.filmStorageDao = filmStorageDao;
         this.likeStorageDao = likeStorageDao;
         this.feedStorageDao = feedStorageDao;
+        this.userStorageDao = userStorageDao;
     }
 
     @Override
@@ -138,6 +141,23 @@ public class FilmServiceImpl extends DataServiceImpl<Film> implements FilmServic
         setGenresAndDirectorsForFilms(filmsResult);
 
         return filmsResult;
+    }
+
+    @Override
+    public Collection<Film> readCommonFilms(long userId, long friendId) {
+        if (!userStorageDao.isExists(userId)) {
+            throw new NotFoundException("Пользователь с id " + userId + " не найден");
+        }
+
+        if (!userStorageDao.isExists(friendId)) {
+            throw new NotFoundException("Друг с id " + friendId + " не найден");
+        }
+
+        Collection<Film> commonFilms = filmStorageDao.readCommonFilms(userId, friendId);
+
+        setGenresAndDirectorsForFilms(commonFilms);
+
+        return commonFilms;
     }
 
     private void setGenresAndDirectorsForFilms(Collection<Film> films) {

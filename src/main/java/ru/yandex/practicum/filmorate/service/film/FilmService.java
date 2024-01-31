@@ -15,4 +15,6 @@ public interface FilmService extends DataService<Film> {
     void deleteLike(long filmId, long userId);
 
     Collection<Film> searchFilms(String query, String by);
+
+    Collection<Film> readCommonFilms(long userId, long friendId);
 }
