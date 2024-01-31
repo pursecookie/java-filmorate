@@ -40,4 +40,9 @@ public class FilmController extends DataController<Film> {
     public void deleteLike(@PathVariable long filmId, @PathVariable long userId) {
         filmService.deleteLike(filmId, userId);
     }
+
+    @GetMapping("/search")
+    public Collection<Film> searchFilms(@RequestParam String query, @RequestParam String by) {
+        return filmService.searchFilms(query, by);
+    }
 }

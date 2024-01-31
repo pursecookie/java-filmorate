@@ -87,11 +87,48 @@ public class FilmStorageDaoImpl extends DataStorageDaoImpl<Film> implements Film
                 "FROM films_directors AS fd " +
                 "LEFT OUTER JOIN (SELECT film_id, COUNT (user_id) AS like_count " +
                 "FROM films_likes " +
-                "GROUP BY film_id " +
-                "ORDER BY like_count DESC) AS l ON fd.film_id = l.film_id " +
+                "GROUP BY film_id) AS l ON fd.film_id = l.film_id " +
                 "LEFT OUTER JOIN films AS f ON fd.film_id = f.film_id " +
-                "LEFT OUTER JOIN ratings AS r ON f.rating_id = r.rating_id ";
+                "LEFT OUTER JOIN ratings AS r ON f.rating_id = r.rating_id " +
+                "ORDER BY like_count DESC";
 
         return jdbcTemplate.query(query, getMapper());
+    }
+
+    @Override
+    public Collection<Film> searchFilms(String query, String by) {
+        String sqlCondition = getSqlCondition(query, by);
+
+        String sqlSearchFilms = "SELECT f.film_id, f.name, f.description, f.release_date, f.duration, " +
+                "f.rating_id, r.mpa_name " +
+                "FROM films AS f " +
+                "LEFT OUTER JOIN (SELECT film_id, COUNT (user_id) AS like_count " +
+                "FROM films_likes " +
+                "GROUP BY film_id) AS l ON f.film_id = l.film_id " +
+                "LEFT OUTER JOIN films_directors AS fd ON f.film_id = fd.film_id " +
+                "LEFT OUTER JOIN directors AS d ON fd.director_id = d.director_id " +
+                "LEFT OUTER JOIN ratings AS r ON f.rating_id = r.rating_id " + sqlCondition +
+                "ORDER BY like_count DESC";
+
+        return jdbcTemplate.query(sqlSearchFilms, getMapper());
+    }
+
+    private static String getSqlCondition(String query, String by) {
+        String sqlCondition = null;
+
+        if (by.equals("director")) {
+            sqlCondition = "WHERE LOWER(d.director_name) LIKE LOWER('%" + query + "%') ";
+        }
+
+        if (by.equals("title")) {
+            sqlCondition = "WHERE LOWER(f.name) LIKE LOWER('%" + query + "%') ";
+        }
+
+        if (by.equals("director,title") || by.equals("title,director")) {
+            sqlCondition = "WHERE LOWER(f.name) LIKE LOWER('%" + query + "%') " +
+                    "OR LOWER(d.director_name) LIKE LOWER('%" + query + "%') ";
+        }
+
+        return sqlCondition;
     }
 }

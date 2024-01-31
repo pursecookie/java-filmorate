@@ -44,8 +44,7 @@ public class FilmServiceImpl extends DataServiceImpl<Film> implements FilmServic
 
         genreStorageDao.addGenresForFilms(result.getId(), film.getGenres());
         directorStorageDao.addDirectorsForFilms(result.getId(), film.getDirectors());
-        result.setGenres(genreStorageDao.getGenresForFilms(result.getId()));
-        result.setDirectors(directorStorageDao.getDirectorsForFilms(result.getId()));
+        setGenresAndDirectorsForFilms(result);
 
         return result;
     }
@@ -55,8 +54,7 @@ public class FilmServiceImpl extends DataServiceImpl<Film> implements FilmServic
         if (dataStorageDao.isExists(filmId)) {
             Film result = dataStorageDao.read(filmId);
 
-            result.setGenres(genreStorageDao.getGenresForFilms(result.getId()));
-            result.setDirectors(directorStorageDao.getDirectorsForFilms(result.getId()));
+            setGenresAndDirectorsForFilms(result);
 
             return result;
         } else {
@@ -67,11 +65,7 @@ public class FilmServiceImpl extends DataServiceImpl<Film> implements FilmServic
     @Override
     public Collection<Film> readAll() {
         Collection<Film> films = dataStorageDao.readAll();
-
-        for (Film film : films) {
-            film.setGenres(genreStorageDao.getGenresForFilms(film.getId()));
-            film.setDirectors(directorStorageDao.getDirectorsForFilms(film.getId()));
-        }
+        setGenresAndDirectorsForFilms(films);
 
         return films;
     }
@@ -83,8 +77,7 @@ public class FilmServiceImpl extends DataServiceImpl<Film> implements FilmServic
 
             genreStorageDao.updateGenresForFilms(result.getId(), film.getGenres());
             directorStorageDao.updateDirectorsForFilms(result.getId(), film.getDirectors());
-            result.setGenres(genreStorageDao.getGenresForFilms(result.getId()));
-            result.setDirectors(directorStorageDao.getDirectorsForFilms(result.getId()));
+            setGenresAndDirectorsForFilms(result);
 
             return result;
         } else {
@@ -108,10 +101,7 @@ public class FilmServiceImpl extends DataServiceImpl<Film> implements FilmServic
             sortedFilms = filmStorageDao.readAllSortedByLikes(directorId);
         }
 
-        for (Film film : sortedFilms) {
-            film.setGenres(genreStorageDao.getGenresForFilms(film.getId()));
-            film.setDirectors(directorStorageDao.getDirectorsForFilms(film.getId()));
-        }
+        setGenresAndDirectorsForFilms(sortedFilms);
 
         return sortedFilms;
     }
@@ -126,10 +116,7 @@ public class FilmServiceImpl extends DataServiceImpl<Film> implements FilmServic
     public Collection<Film> readPopularFilms(String count) {
         Collection<Film> popularFilms = likeStorageDao.readPopular(count);
 
-        for (Film film : popularFilms) {
-            film.setGenres(genreStorageDao.getGenresForFilms(film.getId()));
-            film.setDirectors(directorStorageDao.getDirectorsForFilms(film.getId()));
-        }
+        setGenresAndDirectorsForFilms(popularFilms);
 
         return popularFilms;
     }
@@ -142,5 +129,26 @@ public class FilmServiceImpl extends DataServiceImpl<Film> implements FilmServic
         } else {
             throw new NotFoundException("Данные с id " + userId + " не найдены");
         }
+    }
+
+    @Override
+    public Collection<Film> searchFilms(String query, String by) {
+        Collection<Film> filmsResult = filmStorageDao.searchFilms(query, by);
+
+        setGenresAndDirectorsForFilms(filmsResult);
+
+        return filmsResult;
+    }
+
+    private void setGenresAndDirectorsForFilms(Collection<Film> films) {
+        films.forEach(film -> {
+            film.setGenres(genreStorageDao.getGenresForFilms(film.getId()));
+            film.setDirectors(directorStorageDao.getDirectorsForFilms(film.getId()));
+        });
+    }
+
+    private void setGenresAndDirectorsForFilms(Film film) {
+        film.setGenres(genreStorageDao.getGenresForFilms(film.getId()));
+        film.setDirectors(directorStorageDao.getDirectorsForFilms(film.getId()));
     }
 }
