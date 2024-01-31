@@ -24,17 +24,6 @@ public class LikeStorageDao {
         return "INSERT INTO films_likes (film_id, user_id) VALUES (?,?)";
     }
 
-    private String getSelectPopularQuery() {
-        return "SELECT l.film_id, f.name, f.description, f.release_date, f.duration, f.rating_id, r.mpa_name " +
-                "FROM (SELECT film_id, COUNT (user_id) AS like_count " +
-                "FROM films_likes " +
-                "GROUP BY film_id " +
-                "ORDER BY like_count DESC) AS l " +
-                "LEFT OUTER JOIN films AS f ON l.film_id = f.film_id " +
-                "LEFT OUTER JOIN ratings AS r ON f.rating_id = r.rating_id " +
-                "LIMIT ?";
-    }
-
     private String getSelectAllQuery() {
         return "SELECT f.film_id, f.name, f.description, f.release_date, f.duration, f.rating_id, r.mpa_name " +
                 "FROM films AS f " +
@@ -50,12 +39,18 @@ public class LikeStorageDao {
         jdbcTemplate.update(getInsertQuery(), filmId, userId);
     }
 
-    public Collection<Film> readPopular(String count) {
-        if (count == null) {
-            count = String.valueOf(10);
-        }
+    public Collection<Film> readPopular(Long count) {
+        String sqlReadPopularFilms = "SELECT f.film_id, f.name, f.description, f.release_date, f.duration, " +
+                "f.rating_id, r.mpa_name " +
+                "FROM films AS f " +
+                "LEFT OUTER JOIN (SELECT film_id, COUNT(user_id) AS like_count " +
+                "FROM films_likes " +
+                "GROUP BY film_id) AS l ON f.film_id = l.film_id " +
+                "LEFT OUTER JOIN ratings AS r ON f.rating_id = r.rating_id " +
+                "ORDER BY like_count DESC " +
+                "LIMIT ?";
 
-        Collection<Film> popularFilms = jdbcTemplate.query(getSelectPopularQuery(), new FilmMapper(), count);
+        Collection<Film> popularFilms = jdbcTemplate.query(sqlReadPopularFilms, new FilmMapper(), count);
         Collection<Film> allFilms = jdbcTemplate.query(getSelectAllQuery(), new FilmMapper(), count);
 
         if (popularFilms.isEmpty()) {
@@ -63,6 +58,54 @@ public class LikeStorageDao {
         } else {
             return popularFilms;
         }
+    }
+
+    public Collection<Film> readPopularByGenre(Long count, Long genreId) {
+        String sqlReadPopularFilms = "SELECT f.film_id, f.name, f.description, f.release_date, f.duration, " +
+                "f.rating_id, r.mpa_name " +
+                "FROM films AS f " +
+                "LEFT OUTER JOIN (SELECT film_id, COUNT(user_id) AS like_count " +
+                "FROM films_likes " +
+                "GROUP BY film_id) AS l ON f.film_id = l.film_id " +
+                "LEFT OUTER JOIN ratings AS r ON f.rating_id = r.rating_id " +
+                "LEFT OUTER JOIN films_genres AS fg ON f.film_id = fg.film_id " +
+                "WHERE fg.genre_id = ?" +
+                "ORDER BY like_count DESC " +
+                "LIMIT ?";
+
+        return jdbcTemplate.query(sqlReadPopularFilms, new FilmMapper(), genreId, count);
+    }
+
+    public Collection<Film> readPopularByYear(Long count, Integer year) {
+        String sqlReadPopularFilms = "SELECT f.film_id, f.name, f.description, f.release_date, f.duration, " +
+                "f.rating_id, r.mpa_name " +
+                "FROM films AS f " +
+                "LEFT OUTER JOIN (SELECT film_id, COUNT(user_id) AS like_count " +
+                "FROM films_likes " +
+                "GROUP BY film_id) AS l ON f.film_id = l.film_id " +
+                "LEFT OUTER JOIN ratings AS r ON f.rating_id = r.rating_id " +
+                "WHERE EXTRACT(year from f.release_date) = ? " +
+                "ORDER BY like_count DESC " +
+                "LIMIT ?";
+
+        return jdbcTemplate.query(sqlReadPopularFilms, new FilmMapper(), year, count);
+    }
+
+    public Collection<Film> readPopularByGenreAndYear(Long count, Long genreId, Integer year) {
+        String sqlReadPopularFilms = "SELECT f.film_id, f.name, f.description, f.release_date, f.duration, " +
+                "f.rating_id, r.mpa_name " +
+                "FROM films AS f " +
+                "LEFT OUTER JOIN (SELECT film_id, COUNT(user_id) AS like_count " +
+                "FROM films_likes " +
+                "GROUP BY film_id) AS l ON f.film_id = l.film_id " +
+                "LEFT OUTER JOIN ratings AS r ON f.rating_id = r.rating_id " +
+                "LEFT OUTER JOIN films_genres AS fg ON f.film_id = fg.film_id " +
+                "WHERE fg.genre_id = ?" +
+                "AND EXTRACT(year from f.release_date) = ? " +
+                "ORDER BY like_count DESC " +
+                "LIMIT ?";
+
+        return jdbcTemplate.query(sqlReadPopularFilms, new FilmMapper(), genreId, year, count);
     }
 
     public Collection<Film> readFilmRecommendations(long userId) {
