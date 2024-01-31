@@ -128,6 +128,7 @@ public class FilmServiceImpl extends DataServiceImpl<Film> implements FilmServic
 
         for (Film film : popularFilms) {
             film.setGenres(genreStorageDao.getGenresForFilms(film.getId()));
+            film.setDirectors(directorStorageDao.getDirectorsForFilms(film.getId()));
         }
 
         return popularFilms;
