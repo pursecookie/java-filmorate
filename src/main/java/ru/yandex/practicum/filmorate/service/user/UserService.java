@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.service.user;
 
 import ru.yandex.practicum.filmorate.model.Event;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.DataService;
 
@@ -16,4 +17,6 @@ public interface UserService extends DataService<User> {
     Collection<User> readCommonFriends(long userId, long friendId);
 
     void deleteFriendship(long userId, long friendId);
+
+    Collection<Film> readFilmRecommendations(long userId);
 }

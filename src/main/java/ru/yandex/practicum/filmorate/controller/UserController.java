@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Event;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.DataService;
 import ru.yandex.practicum.filmorate.service.user.UserService;
@@ -44,5 +45,10 @@ public class UserController extends DataController<User> {
     @GetMapping("/{userId}/feed")
     public Collection<Event> readUserFeed(@PathVariable long userId) {
         return userService.readUserFeed(userId);
+    }
+
+    @GetMapping("/{userId}/recommendations")
+    public Collection<Film> readFilmRecommendations(@PathVariable long userId) {
+        return userService.readFilmRecommendations(userId);
     }
 }
