@@ -9,4 +9,6 @@ public interface FilmStorageDao extends DataStorageDao<Film> {
     Collection<Film> readAllSortedByYear(long directorId);
 
     Collection<Film> readAllSortedByLikes(long directorId);
+
+    Collection<Film> searchFilms(String query, String by);
 }
