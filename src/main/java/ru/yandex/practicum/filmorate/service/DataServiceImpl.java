@@ -2,8 +2,8 @@ package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.component.DataFinder;
 import ru.yandex.practicum.filmorate.dao.DataStorageDao;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.StorageData;
 
 import java.util.Collection;
@@ -11,10 +11,12 @@ import java.util.Collection;
 @Service
 public abstract class DataServiceImpl<T extends StorageData> implements DataService<T> {
     protected final DataStorageDao<T> dataStorageDao;
+    protected final DataFinder dataFinder;
 
     @Autowired
-    protected DataServiceImpl(DataStorageDao<T> dataStorageDao) {
+    protected DataServiceImpl(DataStorageDao<T> dataStorageDao, DataFinder dataFinder) {
         this.dataStorageDao = dataStorageDao;
+        this.dataFinder = dataFinder;
     }
 
     @Override
@@ -24,11 +26,9 @@ public abstract class DataServiceImpl<T extends StorageData> implements DataServ
 
     @Override
     public T read(long id) {
-        if (dataStorageDao.isExists(id)) {
-            return dataStorageDao.read(id);
-        } else {
-            throw new NotFoundException("Данные с id " + id + " не найдены");
-        }
+        dataFinder.checkDataExists(dataStorageDao.getIsExistsQuery(), id);
+
+        return dataStorageDao.read(id);
     }
 
     @Override
@@ -38,19 +38,14 @@ public abstract class DataServiceImpl<T extends StorageData> implements DataServ
 
     @Override
     public T update(T data) {
-        if (dataStorageDao.isExists(data.getId())) {
-            return dataStorageDao.update(data);
-        } else {
-            throw new NotFoundException("Данные с id " + data.getId() + " не найдены");
-        }
+        dataFinder.checkDataExists(dataStorageDao.getIsExistsQuery(), data.getId());
+
+        return dataStorageDao.update(data);
     }
 
     @Override
     public void delete(long id) {
-        if (dataStorageDao.isExists(id)) {
-            dataStorageDao.delete(id);
-        } else {
-            throw new NotFoundException("Данные с id " + id + " не найдены");
-        }
+        dataFinder.checkDataExists(dataStorageDao.getIsExistsQuery(), id);
+        dataStorageDao.delete(id);
     }
 }

@@ -40,6 +40,10 @@ public class ReviewStorageDaoImpl extends DataStorageDaoImpl<Review> implements 
         return "DELETE FROM reviews WHERE review_id = ?";
     }
 
+    public String getIsExistsQuery() {
+        return "SELECT EXISTS(SELECT * FROM reviews WHERE review_id = ?)";
+    }
+
     protected RowMapper<Review> getMapper() {
         return new ReviewMapper();
     }

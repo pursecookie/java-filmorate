@@ -45,6 +45,10 @@ public class FilmStorageDaoImpl extends DataStorageDaoImpl<Film> implements Film
         return "DELETE FROM films WHERE film_id = ?";
     }
 
+    public String getIsExistsQuery() {
+        return "SELECT EXISTS(SELECT * FROM films WHERE film_id = ?)";
+    }
+
     protected RowMapper<Film> getMapper() {
         return new FilmMapper();
     }

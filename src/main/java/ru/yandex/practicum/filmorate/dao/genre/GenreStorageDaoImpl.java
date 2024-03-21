@@ -36,6 +36,10 @@ public class GenreStorageDaoImpl extends DataStorageDaoImpl<Genre> implements Ge
         return "DELETE FROM genres WHERE genre_id = ?";
     }
 
+    public String getIsExistsQuery() {
+        return "SELECT EXISTS(SELECT * FROM genres WHERE genre_id = ?)";
+    }
+
     protected RowMapper<Genre> getMapper() {
         return new GenreMapper();
     }

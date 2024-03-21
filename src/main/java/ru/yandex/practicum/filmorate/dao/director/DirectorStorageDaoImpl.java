@@ -36,6 +36,10 @@ public class DirectorStorageDaoImpl extends DataStorageDaoImpl<Director> impleme
         return "DELETE FROM directors WHERE director_id = ?";
     }
 
+    public String getIsExistsQuery() {
+        return "SELECT EXISTS(SELECT * FROM directors WHERE director_id = ?)";
+    }
+
     protected RowMapper<Director> getMapper() {
         return new DirectorMapper();
     }

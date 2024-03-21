@@ -2,12 +2,12 @@ package ru.yandex.practicum.filmorate.service.review;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.component.DataFinder;
 import ru.yandex.practicum.filmorate.dao.DataStorageDao;
 import ru.yandex.practicum.filmorate.dao.feed.FeedStorageDao;
 import ru.yandex.practicum.filmorate.dao.film.FilmStorageDao;
 import ru.yandex.practicum.filmorate.dao.review.ReviewStorageDao;
 import ru.yandex.practicum.filmorate.dao.user.UserStorageDao;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.service.DataServiceImpl;
 
@@ -21,12 +21,12 @@ public class ReviewServiceImpl extends DataServiceImpl<Review> implements Review
     private final FeedStorageDao feedStorageDao;
 
     @Autowired
-    public ReviewServiceImpl(DataStorageDao<Review> dataStorageDao,
+    public ReviewServiceImpl(DataStorageDao<Review> dataStorageDao, DataFinder dataFinder,
                              UserStorageDao userStorageDao,
                              FilmStorageDao filmStorageDao,
                              ReviewStorageDao reviewStorageDao,
                              FeedStorageDao feedStorageDao) {
-        super(dataStorageDao);
+        super(dataStorageDao, dataFinder);
         this.userStorageDao = userStorageDao;
         this.filmStorageDao = filmStorageDao;
         this.reviewStorageDao = reviewStorageDao;
@@ -35,14 +35,8 @@ public class ReviewServiceImpl extends DataServiceImpl<Review> implements Review
 
     @Override
     public Review create(Review review) {
-        if (!userStorageDao.isExists(review.getUserId())) {
-            throw new NotFoundException("Пользователь с id " + review.getUserId() + " не найден");
-        }
-
-        if (!filmStorageDao.isExists(review.getFilmId())) {
-            throw new NotFoundException("Фильм с id " + review.getFilmId() + " не найден");
-        }
-
+        dataFinder.checkDataExists(userStorageDao.getIsExistsQuery(), review.getUserId());
+        dataFinder.checkDataExists(filmStorageDao.getIsExistsQuery(), review.getFilmId());
         review.setUseful(0L);
 
         Review createdReview = super.create(review);
@@ -55,24 +49,20 @@ public class ReviewServiceImpl extends DataServiceImpl<Review> implements Review
 
     @Override
     public Review update(Review review) {
-        if (dataStorageDao.isExists(review.getReviewId())) {
-            Review updatedReview = dataStorageDao.update(review);
+        dataFinder.checkDataExists(dataStorageDao.getIsExistsQuery(), review.getReviewId());
 
-            feedStorageDao.create(updatedReview.getUserId(), updatedReview.getReviewId(),
-                    "REVIEW", "UPDATE");
+        Review updatedReview = dataStorageDao.update(review);
 
-            return updatedReview;
-        } else {
-            throw new NotFoundException("Данные с id " + review.getReviewId() + " не найдены");
-        }
+        feedStorageDao.create(updatedReview.getUserId(), updatedReview.getReviewId(),
+                "REVIEW", "UPDATE");
+
+        return updatedReview;
     }
 
     @Override
     public Collection<Review> readReviewsByMovie(Long filmId, Long count) {
         if (filmId != null) {
-            if (!filmStorageDao.isExists(filmId)) {
-                throw new NotFoundException("Данные с id " + filmId + " не найдены");
-            }
+            dataFinder.checkDataExists(filmStorageDao.getIsExistsQuery(), filmId);
         }
 
         return reviewStorageDao.readReviewsByMovie(filmId, count);
@@ -80,27 +70,15 @@ public class ReviewServiceImpl extends DataServiceImpl<Review> implements Review
 
     @Override
     public void rateReview(long reviewId, long userId, boolean rating) {
-        if (!dataStorageDao.isExists(reviewId)) {
-            throw new NotFoundException("Отзыв с id " + reviewId + " не найден");
-        }
-
-        if (!userStorageDao.isExists(userId)) {
-            throw new NotFoundException("Пользователь с id " + userId + " не найден");
-        }
-
+        dataFinder.checkDataExists(dataStorageDao.getIsExistsQuery(), reviewId);
+        dataFinder.checkDataExists(userStorageDao.getIsExistsQuery(), userId);
         reviewStorageDao.rateReview(reviewId, userId, rating);
     }
 
     @Override
     public void deleteReviewRating(long reviewId, long userId, boolean rating) {
-        if (!dataStorageDao.isExists(reviewId)) {
-            throw new NotFoundException("Отзыв с id " + reviewId + " не найден");
-        }
-
-        if (!userStorageDao.isExists(userId)) {
-            throw new NotFoundException("Пользователь с id " + userId + " не найден");
-        }
-
+        dataFinder.checkDataExists(dataStorageDao.getIsExistsQuery(), reviewId);
+        dataFinder.checkDataExists(userStorageDao.getIsExistsQuery(), userId);
         reviewStorageDao.deleteReviewRating(reviewId, userId, rating);
     }
 

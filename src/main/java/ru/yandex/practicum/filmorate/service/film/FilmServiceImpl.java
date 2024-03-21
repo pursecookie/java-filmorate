@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service.film;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.component.DataFinder;
 import ru.yandex.practicum.filmorate.dao.DataStorageDao;
 import ru.yandex.practicum.filmorate.dao.director.DirectorStorageDao;
 import ru.yandex.practicum.filmorate.dao.feed.FeedStorageDao;
@@ -9,7 +10,6 @@ import ru.yandex.practicum.filmorate.dao.film.FilmStorageDao;
 import ru.yandex.practicum.filmorate.dao.genre.GenreStorageDao;
 import ru.yandex.practicum.filmorate.dao.like.LikeStorageDao;
 import ru.yandex.practicum.filmorate.dao.user.UserStorageDao;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.DataServiceImpl;
 
@@ -26,13 +26,13 @@ public class FilmServiceImpl extends DataServiceImpl<Film> implements FilmServic
     private final UserStorageDao userStorageDao;
 
     @Autowired
-    public FilmServiceImpl(DataStorageDao<Film> dataStorageDao,
+    public FilmServiceImpl(DataStorageDao<Film> dataStorageDao, DataFinder dataFinder,
                            GenreStorageDao genreStorageDao,
                            DirectorStorageDao directorStorageDao,
                            FilmStorageDao filmStorageDao,
                            LikeStorageDao likeStorageDao,
                            FeedStorageDao feedStorageDao, UserStorageDao userStorageDao) {
-        super(dataStorageDao);
+        super(dataStorageDao, dataFinder);
         this.genreStorageDao = genreStorageDao;
         this.directorStorageDao = directorStorageDao;
         this.filmStorageDao = filmStorageDao;
@@ -54,15 +54,13 @@ public class FilmServiceImpl extends DataServiceImpl<Film> implements FilmServic
 
     @Override
     public Film read(long filmId) {
-        if (dataStorageDao.isExists(filmId)) {
-            Film result = dataStorageDao.read(filmId);
+        dataFinder.checkDataExists(dataStorageDao.getIsExistsQuery(), filmId);
 
-            setGenresAndDirectorsForFilms(result);
+        Film result = dataStorageDao.read(filmId);
 
-            return result;
-        } else {
-            throw new NotFoundException("Данные с id " + filmId + " не найдены");
-        }
+        setGenresAndDirectorsForFilms(result);
+
+        return result;
     }
 
     @Override
@@ -75,24 +73,20 @@ public class FilmServiceImpl extends DataServiceImpl<Film> implements FilmServic
 
     @Override
     public Film update(Film film) {
-        if (dataStorageDao.isExists(film.getId())) {
-            Film result = dataStorageDao.update(film);
+        dataFinder.checkDataExists(dataStorageDao.getIsExistsQuery(), film.getId());
 
-            genreStorageDao.updateGenresForFilms(result.getId(), film.getGenres());
-            directorStorageDao.updateDirectorsForFilms(result.getId(), film.getDirectors());
-            setGenresAndDirectorsForFilms(result);
+        Film result = dataStorageDao.update(film);
 
-            return result;
-        } else {
-            throw new NotFoundException("Данные с id " + film.getId() + " не найдены");
-        }
+        genreStorageDao.updateGenresForFilms(result.getId(), film.getGenres());
+        directorStorageDao.updateDirectorsForFilms(result.getId(), film.getDirectors());
+        setGenresAndDirectorsForFilms(result);
+
+        return result;
     }
 
     @Override
     public Collection<Film> readAllSortedFilmsByDirector(long directorId, String sortBy) {
-        if (!directorStorageDao.isExists(directorId)) {
-            throw new NotFoundException("Режиссёр с id " + directorId + " не найден");
-        }
+        dataFinder.checkDataExists(directorStorageDao.getIsExistsQuery(), directorId);
 
         Collection<Film> sortedFilms = new ArrayList<>();
 
@@ -111,6 +105,8 @@ public class FilmServiceImpl extends DataServiceImpl<Film> implements FilmServic
 
     @Override
     public void createLike(long filmId, long userId) {
+        dataFinder.checkDataExists(dataStorageDao.getIsExistsQuery(), filmId);
+        dataFinder.checkDataExists(userStorageDao.getIsExistsQuery(), userId);
         likeStorageDao.create(filmId, userId);
         feedStorageDao.create(userId, filmId, "LIKE", "ADD");
     }
@@ -124,6 +120,8 @@ public class FilmServiceImpl extends DataServiceImpl<Film> implements FilmServic
         }
 
         if (genreId != null) {
+            dataFinder.checkDataExists(genreStorageDao.getIsExistsQuery(), genreId);
+
             popularFilms = likeStorageDao.readPopularByGenre(count, genreId);
         }
 
@@ -132,6 +130,8 @@ public class FilmServiceImpl extends DataServiceImpl<Film> implements FilmServic
         }
 
         if (genreId != null && year != null) {
+            dataFinder.checkDataExists(genreStorageDao.getIsExistsQuery(), genreId);
+
             popularFilms = likeStorageDao.readPopularByGenreAndYear(count, genreId, year);
         }
 
@@ -142,12 +142,10 @@ public class FilmServiceImpl extends DataServiceImpl<Film> implements FilmServic
 
     @Override
     public void deleteLike(long filmId, long userId) {
-        if (likeStorageDao.isExists(userId)) {
-            likeStorageDao.delete(filmId, userId);
-            feedStorageDao.create(userId, filmId, "LIKE", "REMOVE");
-        } else {
-            throw new NotFoundException("Данные с id " + userId + " не найдены");
-        }
+        dataFinder.checkDataExists(dataStorageDao.getIsExistsQuery(), filmId);
+        dataFinder.checkDataExists(userStorageDao.getIsExistsQuery(), userId);
+        likeStorageDao.delete(filmId, userId);
+        feedStorageDao.create(userId, filmId, "LIKE", "REMOVE");
     }
 
     @Override
@@ -161,13 +159,8 @@ public class FilmServiceImpl extends DataServiceImpl<Film> implements FilmServic
 
     @Override
     public Collection<Film> readCommonFilms(long userId, long friendId) {
-        if (!userStorageDao.isExists(userId)) {
-            throw new NotFoundException("Пользователь с id " + userId + " не найден");
-        }
-
-        if (!userStorageDao.isExists(friendId)) {
-            throw new NotFoundException("Друг с id " + friendId + " не найден");
-        }
+        dataFinder.checkDataExists(userStorageDao.getIsExistsQuery(), userId);
+        dataFinder.checkDataExists(userStorageDao.getIsExistsQuery(), friendId);
 
         Collection<Film> commonFilms = filmStorageDao.readCommonFilms(userId, friendId);
 
