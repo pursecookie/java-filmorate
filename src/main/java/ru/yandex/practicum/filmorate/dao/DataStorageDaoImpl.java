@@ -1,12 +1,13 @@
 package ru.yandex.practicum.filmorate.dao;
 
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.StorageData;
 
 import java.util.Collection;
 
+@Repository
 public abstract class DataStorageDaoImpl<T extends StorageData> implements DataStorageDao<T> {
     protected final JdbcTemplate jdbcTemplate;
 
@@ -45,15 +46,5 @@ public abstract class DataStorageDaoImpl<T extends StorageData> implements DataS
     @Override
     public void delete(long id) {
         jdbcTemplate.update(getDeleteQuery(), id);
-    }
-
-    @Override
-    public boolean isExists(long id) {
-        try {
-            read(id);
-            return true;
-        } catch (EmptyResultDataAccessException e) {
-            return false;
-        }
     }
 }

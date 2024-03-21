@@ -33,6 +33,10 @@ public class MpaStorageDaoImpl extends DataStorageDaoImpl<Mpa> implements MpaSto
         return "DELETE FROM ratings WHERE rating_id = ?";
     }
 
+    public String getIsExistsQuery() {
+        return "SELECT EXISTS(SELECT * FROM ratings WHERE rating_id = ?)";
+    }
+
     protected RowMapper<Mpa> getMapper() {
         return new MpaMapper();
     }

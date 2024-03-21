@@ -33,6 +33,10 @@ public class UserStorageDaoImpl extends DataStorageDaoImpl<User> implements User
         return "DELETE FROM users WHERE user_id = ?";
     }
 
+    public String getIsExistsQuery() {
+        return "SELECT EXISTS(SELECT * FROM users WHERE user_id = ?)";
+    }
+
     protected RowMapper<User> getMapper() {
         return new UserMapper();
     }

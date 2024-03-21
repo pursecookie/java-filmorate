@@ -5,13 +5,9 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dao.DataStorageDaoImpl;
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
-import ru.yandex.practicum.filmorate.mapper.GenreMapper;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
 
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
 
 @Repository
 public class FilmStorageDaoImpl extends DataStorageDaoImpl<Film> implements FilmStorageDao {
@@ -20,29 +16,37 @@ public class FilmStorageDaoImpl extends DataStorageDaoImpl<Film> implements Film
     }
 
     protected String getInsertQuery() {
-        return "INSERT INTO films (name, description, release_date, duration, rating_id) VALUES (?,?,?,?,?)";
+        return "INSERT INTO films (name, description, release_date, duration, rating_id) " +
+                "VALUES (?,?,?,?,?)";
     }
 
     protected String getSelectQuery() {
-        return "SELECT f.film_id, f.name, f.description, f.release_date, f.duration, f.rating_id, r.mpa_name " +
+        return "SELECT f.film_id, f.name, f.description, f.release_date, f.duration, " +
+                "f.rating_id, r.mpa_name " +
                 "FROM films AS f " +
                 "LEFT OUTER JOIN ratings AS r ON f.rating_id = r.rating_id " +
                 "WHERE f.film_id = ?";
     }
 
     protected String getSelectAllQuery() {
-        return "SELECT f.film_id, f.name, f.description, f.release_date, f.duration, f.rating_id, r.mpa_name " +
+        return "SELECT f.film_id, f.name, f.description, f.release_date, f.duration, " +
+                "f.rating_id, r.mpa_name " +
                 "FROM films AS f " +
-                "LEFT OUTER JOIN ratings AS r ON f.rating_id = r.rating_id";
+                "LEFT OUTER JOIN ratings AS r ON f.rating_id = r.rating_id ";
     }
 
     protected String getUpdateQuery() {
-        return "UPDATE films SET name = ?, description = ?, release_date = ?, duration = ?, rating_id = ? " +
+        return "UPDATE films SET name = ?, description = ?, release_date = ?, duration = ?, " +
+                "rating_id = ? " +
                 "WHERE film_id = ?";
     }
 
     protected String getDeleteQuery() {
         return "DELETE FROM films WHERE film_id = ?";
+    }
+
+    public String getIsExistsQuery() {
+        return "SELECT EXISTS(SELECT * FROM films WHERE film_id = ?)";
     }
 
     protected RowMapper<Film> getMapper() {
@@ -54,7 +58,11 @@ public class FilmStorageDaoImpl extends DataStorageDaoImpl<Film> implements Film
         jdbcTemplate.update(getInsertQuery(), film.getName(), film.getDescription(), film.getReleaseDate(),
                 film.getDuration(), film.getMpa().getId());
 
-        return jdbcTemplate.queryForObject(getSelectAllQuery() + " WHERE f.name = ?", getMapper(), film.getName());
+        return jdbcTemplate.queryForObject("SELECT f.film_id, f.name, f.description, f.release_date, f.duration, " +
+                "f.rating_id, r.mpa_name " +
+                "FROM films AS f " +
+                "LEFT OUTER JOIN ratings AS r ON f.rating_id = r.rating_id " +
+                "ORDER BY film_id DESC LIMIT 1", getMapper());
     }
 
     @Override
@@ -66,25 +74,89 @@ public class FilmStorageDaoImpl extends DataStorageDaoImpl<Film> implements Film
     }
 
     @Override
-    public void addGenres(long filmId, Collection<Genre> genres) {
-        for (Genre genre : genres) {
-            jdbcTemplate.update("INSERT INTO films_genres (film_id, genre_id) VALUES (?,?)", filmId, genre.getId());
+    public Collection<Film> readAllSortedByYear(long directorId) {
+        String query = "SELECT f.film_id, f.name, f.description, f.release_date, f.duration, f.rating_id, r.mpa_name " +
+                "FROM films_directors AS fd " +
+                "LEFT OUTER JOIN films AS f ON fd.film_id = f.film_id " +
+                "LEFT OUTER JOIN ratings AS r ON f.rating_id = r.rating_id " +
+                "WHERE director_id = " + directorId +
+                "ORDER BY f.release_date";
+
+        return jdbcTemplate.query(query, getMapper());
+    }
+
+    @Override
+    public Collection<Film> readAllSortedByLikes(long directorId) {
+        String query = "SELECT f.film_id, f.name, f.description, f.release_date, f.duration, f.rating_id, r.mpa_name " +
+                "FROM films_directors AS fd " +
+                "LEFT OUTER JOIN (SELECT film_id, COUNT (user_id) AS like_count " +
+                "FROM films_likes " +
+                "GROUP BY film_id) AS l ON fd.film_id = l.film_id " +
+                "LEFT OUTER JOIN films AS f ON fd.film_id = f.film_id " +
+                "LEFT OUTER JOIN ratings AS r ON f.rating_id = r.rating_id " +
+                "ORDER BY like_count DESC";
+
+        return jdbcTemplate.query(query, getMapper());
+    }
+
+    @Override
+    public Collection<Film> searchFilms(String query, String by) {
+        String sqlCondition = getSqlCondition(query, by);
+
+        String sqlSearchFilms = "SELECT f.film_id, f.name, f.description, f.release_date, f.duration, " +
+                "f.rating_id, r.mpa_name " +
+                "FROM films AS f " +
+                "LEFT OUTER JOIN (SELECT film_id, COUNT (user_id) AS like_count " +
+                "FROM films_likes " +
+                "GROUP BY film_id) AS l ON f.film_id = l.film_id " +
+                "LEFT OUTER JOIN films_directors AS fd ON f.film_id = fd.film_id " +
+                "LEFT OUTER JOIN directors AS d ON fd.director_id = d.director_id " +
+                "LEFT OUTER JOIN ratings AS r ON f.rating_id = r.rating_id " + sqlCondition +
+                "ORDER BY like_count DESC";
+
+        return jdbcTemplate.query(sqlSearchFilms, getMapper());
+    }
+
+    @Override
+    public Collection<Film> readCommonFilms(long userId, long friendId) {
+        String sqlReadCommonFilms = "SELECT f.film_id, f.name, f.description, f.release_date, f.duration, " +
+                "f.rating_id, r.mpa_name " +
+                "FROM films AS f " +
+                "LEFT OUTER JOIN (SELECT film_id, COUNT(user_id) AS like_count " +
+                "FROM films_likes " +
+                "GROUP BY film_id) AS l ON f.film_id = l.film_id " +
+                "LEFT OUTER JOIN ratings AS r ON f.rating_id = r.rating_id " +
+                "WHERE f.film_id IN (SELECT fl.film_id " +
+                "FROM films_likes AS fl " +
+                "WHERE fl.user_id = ? " +
+                "OR fl.user_id = ? " +
+                "AND fl.film_id NOT IN (SELECT fl.film_id " +
+                "FROM films_likes AS fl " +
+                "WHERE fl.user_id = ?) " +
+                "AND fl.film_id NOT IN (SELECT fl.film_id " +
+                "FROM films_likes AS fl " +
+                "WHERE fl.user_id = ?)) " +
+                "ORDER BY like_count DESC";
+
+        return jdbcTemplate.query(sqlReadCommonFilms, getMapper(), userId, friendId, userId, friendId);
+    }
+
+    private static String getSqlCondition(String query, String by) {
+        String sqlCondition = null;
+
+        if (by.equals("director")) {
+            sqlCondition = "WHERE LOWER(d.director_name) LIKE LOWER('%" + query + "%') ";
         }
-    }
 
-    @Override
-    public Set<Genre> getGenres(long filmId) {
-        return new HashSet<>(jdbcTemplate.query("SELECT fg.genre_id, g.genre_name " +
-                "FROM films_genres AS fg " +
-                "LEFT OUTER JOIN genres AS g ON fg.genre_id = g.genre_id " +
-                "WHERE fg.film_id = ?" +
-                "ORDER BY fg.genre_id", new GenreMapper(), filmId));
-    }
+        if (by.equals("title")) {
+            sqlCondition = "WHERE LOWER(f.name) LIKE LOWER('%" + query + "%') ";
+        }
 
-    @Override
-    public void updateGenres(long filmId, Set<Genre> genres) {
-        jdbcTemplate.update("DELETE FROM films_genres WHERE film_id = ?", filmId);
-        addGenres(filmId, genres);
-    }
+        if (by.equals("director,title") || by.equals("title,director")) {
+            sqlCondition = "WHERE LOWER(f.name) LIKE LOWER('%" + query + "%') " +
+                    "OR LOWER(d.director_name) LIKE LOWER('%" + query + "%') ";
+        }
 
+        return sqlCondition;
+    }
 }

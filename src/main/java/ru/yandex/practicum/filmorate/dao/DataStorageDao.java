@@ -15,5 +15,5 @@ public interface DataStorageDao<T extends StorageData> {
 
     void delete(long id);
 
-    boolean isExists(long id);
+    String getIsExistsQuery();
 }

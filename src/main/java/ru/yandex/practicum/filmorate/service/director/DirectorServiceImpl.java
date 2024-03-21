@@ -1,16 +1,16 @@
-package ru.yandex.practicum.filmorate.service.mpa;
+package ru.yandex.practicum.filmorate.service.director;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.component.DataFinder;
 import ru.yandex.practicum.filmorate.dao.DataStorageDao;
-import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.service.DataServiceImpl;
 
 @Service
-public class MpaServiceImpl extends DataServiceImpl<Mpa> implements MpaService {
+public class DirectorServiceImpl extends DataServiceImpl<Director> implements DirectorService {
     @Autowired
-    public MpaServiceImpl(DataStorageDao<Mpa> dataStorageDao, DataFinder dataFinder) {
+    public DirectorServiceImpl(DataStorageDao<Director> dataStorageDao, DataFinder dataFinder) {
         super(dataStorageDao, dataFinder);
     }
 }
